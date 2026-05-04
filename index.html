@@ -375,85 +375,85 @@
     </div>
 
     <script>
-        function corrigir() {
-            const respostasCorretas = {
-                q1: "b",
-                q2: "c",
-                q3: "a",
-                q4: "a",
-                q5: "b",
-                q6: "a",
-                q7: "b",
-                q8: "a",
-                q9: "b",
-                q10: "a"
-            };
+    function corrigir() {
+        const respostasCorretas = {
+            q1: "b",
+            q2: "c",
+            q3: "a",
+            q4: "a",
+            q5: "b",
+            q6: "a",
+            q7: "b",
+            q8: "a",
+            q9: "b",
+            q10: "a"
+        };
 
-            let pontos = 0;
+        let pontos = 0;
+        const total = Object.keys(respostasCorretas).length;
+        const form = document.getElementById("quizForm");
 
-            const total = Object.keys(respostasCorretas).length;
+        let params = [];
 
-            const form = document.getElementById("quizForm");
+        for (const q in respostasCorretas) {
+            const box = document.getElementById(q + "box");
 
-            let params = [];
+            const antigo = box.querySelector(".feedback");
+            if (antigo) antigo.remove();
 
-            for (const q in respostasCorretas) {
-                const box = document.getElementById(q + "box");
+            const marcado = form.querySelector(`input[name="${q}"]:checked`);
 
-                const antigo = box.querySelector(".feedback");
+            const respostaAluno = marcado ? marcado.value : "nao_respondeu";
 
-                if (antigo) antigo.remove();
+            const acertou = respostaAluno === respostasCorretas[q];
 
-                const marcado = form.querySelector(`input[name="${q}"]:checked`);
-
-                const respostaAluno = marcado ? marcado.value : "nao_respondeu";
-
-                params.push(`${q}=${respostaAluno}`);
-
-                const feedback = document.createElement("p");
-
-                feedback.classList.add("feedback");
-
-                if (respostaAluno === "nao_respondeu") {
-                    feedback.textContent = "⚠️ Você não marcou nenhuma alternativa.";
-                    feedback.classList.add("neutro");
-                } else if (respostaAluno === respostasCorretas[q]) {
-                    pontos++;
-                    feedback.textContent = "✅ Correto!";
-                    feedback.classList.add("correto");
-                } else {
-                    let respostaCorretaTexto = "";
-
-                    const inputs = box.querySelectorAll("label input");
-
-                    inputs.forEach(input => {
-                        if (input.value === respostasCorretas[q]) {
-                            respostaCorretaTexto = input.parentNode.textContent.trim();
-                        }
-                    });
-
-                    feedback.textContent = `❌ Errado. A resposta correta é: ${respostaCorretaTexto}`;
-                    feedback.classList.add("errado");
-                }
-
-                box.appendChild(feedback);
+            if (acertou) {
+                pontos++;
             }
 
-            document.getElementById("resultado").textContent =
-                `Você acertou ${pontos} de ${total} questões.`;
+            params.push(`${q}=${respostaAluno}`);
+            params.push(`${q}_status=${acertou ? "correto" : "errado"}`);
 
-            params.push(`pontos=${pontos}`);
+            const feedback = document.createElement("p");
+            feedback.classList.add("feedback");
 
-            params.push(`total=${total}`);
+            if (respostaAluno === "nao_respondeu") {
+                feedback.textContent = "⚠️ Você não marcou nenhuma alternativa.";
+                feedback.classList.add("neutro");
+            } else if (acertou) {
+                feedback.textContent = "✅ Correto!";
+                feedback.classList.add("correto");
+            } else {
+                let respostaCorretaTexto = "";
 
-            const urlBase = window.location.origin + window.location.pathname;
+                const inputs = box.querySelectorAll("label input");
 
-            const link = urlBase + "?" + params.join("&");
+                inputs.forEach(input => {
+                    if (input.value === respostasCorretas[q]) {
+                        respostaCorretaTexto = input.parentNode.textContent.trim();
+                    }
+                });
 
-            document.getElementById("linkRespostas").innerHTML =
-                `🔗 Link com respostas e status:<br><a href="${link}" target="_blank">${link}</a>`;
+                feedback.textContent = `❌ Errado. A resposta correta é: ${respostaCorretaTexto}`;
+                feedback.classList.add("errado");
+            }
+
+            box.appendChild(feedback);
         }
-    </script>
+
+        document.getElementById("resultado").textContent =
+            `Você acertou ${pontos} de ${total} questões.`;
+
+        params.push(`pontos=${pontos}`);
+        params.push(`total=${total}`);
+
+        const urlBase = window.location.origin + window.location.pathname;
+        const link = urlBase + "?" + params.join("&");
+
+        document.getElementById("linkRespostas").innerHTML =
+            `🔗 Link com respostas e status:<br><a href="${link}" target="_blank">${link}</a>`;
+    }
+</script>
 
 </body>
 
